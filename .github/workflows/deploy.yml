@@ -3,7 +3,7 @@ name: Deploy EC2 with UserData Script
 on:
   push:
     branches:
-      - master  # O la rama que prefieras
+      - main  # O la rama que prefieras
 
 jobs:
   deploy:
