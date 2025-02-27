@@ -45,6 +45,7 @@ jobs:
             
           EOF
 
+
       # Paso 5: Verificar el estado de la instancia
       - name: Check EC2 instance status
         run: |
