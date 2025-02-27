@@ -29,19 +29,19 @@ jobs:
 
       # Paso 4: Conectarse a la instancia EC2 y ejecutar el archivo ec2_user_data.sh
       - name: Set up SSH key and copy script to EC2
-          run: |
-            mkdir -p ~/.ssh  # Crear el directorio ~/.ssh si no existe
-            echo "$SSH_PRIVATE_KEY" > ~/.ssh/terraform-key.pem  # Escribir la clave privada en el archivo
-            chmod 600 ~/.ssh/terraform-key.pem  # Establecer permisos adecuados
+        run: |
+          mkdir -p ~/.ssh  # Crear el directorio ~/.ssh si no existe
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/terraform-key.pem  # Escribir la clave privada en el archivo
+          chmod 600 ~/.ssh/terraform-key.pem  # Establecer permisos adecuados
 
-            # Usar scp para copiar el archivo ec2_user_data.sh a la instancia EC2
-            scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ./00_ec2/ec2_user_data.sh ec2-user@$EC2_IP:/home/ec2-user/ec2_user_data.sh
+          # Usar scp para copiar el archivo ec2_user_data.sh a la instancia EC2
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ./00_ec2/ec2_user_data.sh ec2-user@$EC2_IP:/home/ec2-user/ec2_user_data.sh
 
-            # Conexión SSH usando el archivo terraform-key.pem
-            ssh -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ec2-user@$EC2_IP << 'EOF'
-              chmod +x /home/ec2-user/ec2_user_data.sh
-              sudo /home/ec2-user/ec2_user_data.sh
-            EOF
+          # Conexión SSH usando el archivo terraform-key.pem
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ec2-user@$EC2_IP << 'EOF'
+            chmod +x /home/ec2-user/ec2_user_data.sh
+            sudo /home/ec2-user/ec2_user_data.sh
+          EOF
 
 
 
