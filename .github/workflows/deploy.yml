@@ -33,19 +33,19 @@ jobs:
           EC2_IP: ${{ secrets.EC2_IP }}  # IP pública de la EC2, configurada como secreto
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # La clave privada SSH, configurada como secreto 
         run: |
-          # Crear el archivo de la clave privada en ~/.ssh/
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/terraform-key.pem
-          chmod 600 ~/.ssh/terraform-key.pem  # Asegurarse de que los permisos sean correctos
+            # Crear el archivo de la clave privada en ~/.ssh/
+            mkdir -p ~/.ssh
+            echo "$SSH_PRIVATE_KEY" > ~/.ssh/terraform-key.pem
+            chmod 600 ~/.ssh/terraform-key.pem  # Asegurarse de que los permisos sean correctos
 
-          # Usar el archivo terraform-key.pem para copiar el archivo a la instancia EC2
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ./00_ec2/ec2_user_data.sh ubuntu@$EC2_IP:/home/ubuntu/ec2_user_data.sh
-          
-          # Conexión SSH usando el archivo terraform-key.pem
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ubuntu@$EC2_IP << 'EOF'
-            chmod +x /home/ubuntu/ec2_user_data.sh
-            sudo /home/ubuntu/ec2_user_data.sh
-          EOF
+            # Usar el archivo terraform-key.pem para copiar el archivo a la instancia EC2
+            scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ./00_ec2/ec2_user_data.sh ec2-user@$EC2_IP:/home/ec2-user/ec2_user_data.sh  # Cambié ubuntu por ec2-user
+            
+            # Conexión SSH usando el archivo terraform-key.pem
+            ssh -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ec2-user@$EC2_IP << 'EOF'  # Cambié ubuntu por ec2-user
+              chmod +x /home/ec2-user/ec2_user_data.sh  # Cambié ubuntu por ec2-user
+              sudo /home/ec2-user/ec2_user_data.sh  # Cambié ubuntu por ec2-user
+            EOF
 
       # Paso 5: Verificar el estado de la instancia
       - name: Check EC2 instance status
