@@ -35,8 +35,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh  
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/terraform-key.pem 
-          chmod 600 ~/.ssh/terraform-key.pem  # Establecer permisos adecuados
-
+          chmod 600 ~/.ssh/terraform-key.pem  
          
           scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ./00_ec2/ec2_user_data.sh ec2-user@184.72.109.133:/home/ec2-user/ec2_user_data.sh
 
