@@ -9,13 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: us-east-1
-      EC2_IP: ${{ secrets.EC2_IP }}  # IP pública de la EC2, configurada como secreto
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # La clave privada SSH, configurada como secreto
-
     steps:
       # Paso 1: Check out el código
       - name: Check out repository
@@ -25,9 +18,9 @@ jobs:
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       # Paso 3: Verificar que el archivo ec2_user_data.sh está presente
       - name: Check that the ec2_user_data.sh script is available
@@ -36,6 +29,9 @@ jobs:
 
       # Paso 4: Conectarse a la instancia EC2 y ejecutar el archivo ec2_user_data.sh
       - name: Connect to EC2 instance and run user_data.sh
+        env:
+          EC2_IP: ${{ secrets.EC2_IP }}  # IP pública de la EC2, configurada como secreto
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # La clave privada SSH, configurada como secreto 
         run: |
           # Conexión SSH a la instancia EC2 y ejecución del archivo ec2_user_data.sh
           echo "$SSH_PRIVATE_KEY" > private_key.pem
@@ -46,16 +42,18 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$EC2_IP << 'EOF'
             chmod +x /home/ubuntu/ec2_user_data.sh
             sudo /home/ubuntu/ec2_user_data.sh
+            
           EOF
+
 
       # Paso 5: Verificar el estado de la instancia
       - name: Check EC2 instance status
         run: |
           # Obtener el ID de la instancia (si es necesario)
-          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=ip-address,Values=${{ env.EC2_IP }}" --query 'Reservations[0].Instances[0].InstanceId' --output text)
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=ip-address,Values=${{ secrets.EC2_IP }}" --query 'Reservations[0].Instances[0].InstanceId' --output text)
           echo "La instancia EC2 se está ejecutando con ID: $INSTANCE_ID"
           aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].State.Name' --output text
-
+      
       # Paso 6: Instalar eksctl
       - name: Install eksctl
         run: |
@@ -68,10 +66,9 @@ jobs:
         run: |
           chmod +x 01_eksctl/create-cluster.sh
           ./01_eksctl/create-cluster.sh
-
       # Paso 7: Verificar si el clúster fue creado correctamente
       - name: List EKS clusters
-        run: aws eks list-clusters --region ${{ env.AWS_REGION }}
+        run: aws eks list-clusters --region us-east-1
 
       # Paso 8: Verificar el estado del cluster de EKS
       - name: Verify EKS Cluster Status
@@ -82,16 +79,16 @@ jobs:
       - name: Deploy nginx pod in EKS
         run: |
           # Configurar kubectl para usar el cluster de EKS
-          aws eks update-kubeconfig --name eks-mundos-e --region ${{ env.AWS_REGION }}
+          aws eks update-kubeconfig --name eks-mundos-e --region us-east-1
 
           # Desplegar un pod de nginx en el cluster
           kubectl run nginx --image=nginx --restart=Never
-
+          
       # Paso 10 Verificar que el pod nginx esté corriendo
       - name: Check nginx pod status
         run: |
           kubectl get pods -l run=nginx
-
+      
       # Paso 11: Instalar Prometheus usando Helm
       - name: Install Prometheus with Helm
         run: |
