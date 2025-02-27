@@ -26,6 +26,9 @@ jobs:
       - name: Check that the ec2_user_data.sh script is available
         run: |
           cat 00_ec2/ec2_user_data.sh
+      - name: Check EC2 IP
+        run: |
+          echo "EC2_IP is $EC2_IP"
 
       # Paso 4: Conectarse a la instancia EC2 y ejecutar el archivo ec2_user_data.sh
       - name: Set up SSH key and copy script to EC2
