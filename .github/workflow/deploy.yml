@@ -31,7 +31,7 @@ jobs:
       - name: Connect to EC2 instance and run user_data.sh
         env:
           EC2_IP: ${{ secrets.EC2_IP }}  # IP pública de la EC2, configurada como secreto
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # La clave privada SSH, configurada como secreto
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # La clave privada SSH, configurada como secreto 
         run: |
           # Conexión SSH a la instancia EC2 y ejecución del archivo ec2_user_data.sh
           echo "$SSH_PRIVATE_KEY" > private_key.pem
