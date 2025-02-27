@@ -26,9 +26,18 @@ jobs:
       - name: Check that the ec2_user_data.sh script is available
         run: |
           cat 00_ec2/ec2_user_data.sh
-      - name: Check EC2 IP
+      - name: Verificar conexión SSH a la instancia EC2
         run: |
-          echo "EC2_IP is $EC2_IP"
+          mkdir -p ~/.ssh
+
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/terraform-key.pem
+
+          chmod 600 ~/.ssh/terraform-key.pem
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ec2-user@184.72.109.133 "echo 'Conexión exitosa a EC2'"
+        shell: /usr/bin/bash -e {0}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} 
 
       # Paso 4: Conectarse a la instancia EC2 y ejecutar el archivo ec2_user_data.sh
       - name: Set up SSH key and copy script to EC2
