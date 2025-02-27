@@ -28,6 +28,8 @@ jobs:
           cat 00_ec2/ec2_user_data.sh
 
       # Paso 4: Conectarse a la instancia EC2 y ejecutar el archivo ec2_user_data.sh
+      - name: Print EC2_IP
+        run: echo "EC2_IP is $EC2_IP"
       - name: Create SSH key
         run: |
           mkdir -p ~/.ssh
