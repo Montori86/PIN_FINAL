@@ -39,12 +39,12 @@ jobs:
           chmod 600 ~/.ssh/terraform-key.pem  # Asegurarse de que los permisos sean correctos
 
           # Usar el archivo terraform-key.pem para copiar el archivo a la instancia EC2
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ./00_ec2/ec2_user_data.sh c2-user@$EC2_IP:/home/c2-user/ec2_user_data.sh
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ./00_ec2/ec2_user_data.sh ec2-user@$EC2_IP:/home/ec2-user/ec2_user_data.sh
           
           # Conexión SSH usando el archivo terraform-key.pem
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem c2-user@$EC2_IP << 'EOF'
-            chmod +x /home/c2-user/ec2_user_data.sh
-            sudo /home/c2-user/ec2_user_data.sh
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/terraform-key.pem ec2-user@$EC2_IP << 'EOF'
+            chmod +x /homee/2-user/ec2_user_data.sh
+            sudo /home/ec2-user/ec2_user_data.sh
           EOF
 
 
