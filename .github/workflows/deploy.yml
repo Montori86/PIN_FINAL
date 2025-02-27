@@ -34,12 +34,12 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # La clave privada SSH, configurada como secreto 
         run: |
           # Conexión SSH a la instancia EC2 y ejecución del archivo ec2_user_data.sh
-          echo "$SSH_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
+          echo "$SSH_PRIVATE_KEY" > terraform-key.pem
+          chmod 600 terraform-key.pem
 
-          scp -o StrictHostKeyChecking=no -i private_key.pem ./00_ec2/ec2_user_data.sh ubuntu@$EC2_IP:/home/ubuntu/ec2_user_data.sh
+          scp -o StrictHostKeyChecking=no -i terraform-key.pem ./00_ec2/ec2_user_data.sh ubuntu@$EC2_IP:/home/ubuntu/ec2_user_data.sh
           
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$EC2_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i terraform-key.pem ubuntu@$EC2_IP << 'EOF'
             chmod +x /home/ubuntu/ec2_user_data.sh
             sudo /home/ubuntu/ec2_user_data.sh
             
