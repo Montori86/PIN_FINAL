@@ -33,18 +33,18 @@ jobs:
           EC2_IP: ${{ secrets.EC2_IP }}  # IP pública de la EC2, configurada como secreto
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # La clave privada SSH, configurada como secreto 
         run: |
-          # Conexión SSH a la instancia EC2 y ejecución del archivo ec2_user_data.sh
+          # Crear la clave privada SSH en el entorno
           echo "$SSH_PRIVATE_KEY" > terraform-key.pem
           chmod 600 terraform-key.pem
 
-          scp -o StrictHostKeyChecking=no -i private_key.pem ./00_ec2/ec2_user_data.sh ec2-user@$EC2_IP:/home/ubuntu/ec2_user_data.sh
+          # Usar scp para copiar el archivo ec2_user_data.sh a la instancia EC2
+          scp -o StrictHostKeyChecking=no -i terraform-key.pem ./00_ec2/ec2_user_data.sh ec2-user@$EC2_IP:/home/ec2-user/ec2_user_data.sh
           
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@$EC2_IP << 'EOF'
-            chmod +x /home/ubuntu/ec2_user_data.sh
-            sudo /home/ubuntu/ec2_user_data.sh
-            
+          # Conexión SSH usando el archivo terraform-key.pem
+          ssh -o StrictHostKeyChecking=no -i terraform-key.pem ec2-user@$EC2_IP << 'EOF'
+            chmod +x /home/ec2-user/ec2_user_data.sh
+            sudo /home/ec2-user/ec2_user_data.sh
           EOF
-
 
       # Paso 5: Verificar el estado de la instancia
       - name: Check EC2 instance status
@@ -53,7 +53,7 @@ jobs:
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=ip-address,Values=${{ secrets.EC2_IP }}" --query 'Reservations[0].Instances[0].InstanceId' --output text)
           echo "La instancia EC2 se está ejecutando con ID: $INSTANCE_ID"
           aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].State.Name' --output text
-      
+
       # Paso 6: Instalar eksctl
       - name: Install eksctl
         run: |
@@ -66,6 +66,7 @@ jobs:
         run: |
           chmod +x 01_eksctl/create-cluster.sh
           ./01_eksctl/create-cluster.sh
+
       # Paso 7: Verificar si el clúster fue creado correctamente
       - name: List EKS clusters
         run: aws eks list-clusters --region us-east-1
@@ -84,7 +85,7 @@ jobs:
           # Desplegar un pod de nginx en el cluster
           kubectl run nginx --image=nginx --restart=Never
           
-      # Paso 10 Verificar que el pod nginx esté corriendo
+      # Paso 10: Verificar que el pod nginx esté corriendo
       - name: Check nginx pod status
         run: |
           kubectl get pods -l run=nginx
@@ -105,7 +106,7 @@ jobs:
       # Paso 12: Instalar Grafana usando Helm
       - name: Install Grafana with Helm
         run: |
-          # Create Grafana namespace
+          # Crear el namespace grafana si no existe
           kubectl create namespace grafana || echo "Namespace grafana ya existe"
 
           # Añadir el repositorio de Grafana
