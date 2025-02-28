@@ -1,9 +1,10 @@
 #!/bin/bash
+
 # Instalar unzip si no está instalado
 echo "Installing unzip"
-sudo apt-get update
-sudo apt-get install -y unzip
+sudo yum install -y unzip
 
+# Instalar AWS CLI
 echo "Installing AWS CLI"
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
@@ -19,6 +20,7 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 kubectl version --client
 echo "kubectl installed successfully"
 
+# Instalación de eksctl
 echo "Installing eksctl"
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 if [ $? -ne 0 ]; then
@@ -34,15 +36,14 @@ export PATH=$PATH:/usr/local/bin
 echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bashrc
 eksctl version
 
-# Instalación de Docker en Ubuntu
+# Instalación de Docker
 echo "Installing Docker"
-sudo apt-get update
-sudo apt-get install -y docker.io
+sudo yum install -y docker
 sudo systemctl enable docker.service
 sudo systemctl start docker.service
 
 # Añadir el usuario al grupo docker para que pueda usar Docker sin sudo
-sudo usermod -aG docker ubuntu
+sudo usermod -aG docker ec2-user
 newgrp docker
 
 # Descargar e instalar Docker Compose
@@ -55,17 +56,24 @@ echo "Installing Helm"
 curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm version
 
-# Instalación de Terraform en Ubuntu
+# Instalación de Terraform
 echo "Installing Terraform"
 
-# Añadir la clave de HashiCorp y el repositorio
-sudo apt-get update
-sudo apt-get install -y gnupg software-properties-common
-sudo wget -qO- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor > /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt-get update
+# Descargar e instalar Terraform desde HashiCorp
+echo "Descargando Terraform..."
+curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o terraform_1.5.0_linux_amd64.zip
 
-# Instalar Terraform
-sudo apt-get install -y terraform
+# Descomprimir el archivo descargado
+echo "Descomprimiendo Terraform..."
+unzip terraform_1.5.0_linux_amd64.zip
+
+# Mover el binario de Terraform a una ubicación global
+echo "Moviendo Terraform a /usr/local/bin..."
+sudo mv terraform /usr/local/bin/
+
+# Verificar que Terraform está instalado correctamente
+terraform --version
+
+echo "Instalación de Terraform completada"
 
 echo "Instalación completada"
