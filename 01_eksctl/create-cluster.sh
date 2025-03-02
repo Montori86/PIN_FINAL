@@ -7,6 +7,8 @@ NODE_TYPE="t3.small"
 NODE_COUNT=3
 SSH_KEY="terraform-key"
 ZONES="us-east-1a,us-east-1b,us-east-1c"
+SSH_DIR="$HOME/.ssh"
+SSH_KEY_PATH="$SSH_DIR/$SSH_KEY"
 
 # Asegurarse de que /usr/local/bin está en el PATH
 export PATH=$PATH:/usr/local/bin
@@ -29,6 +31,29 @@ if [ $? -eq 0 ]; then
     echo "Credenciales de AWS validadas, procediendo con la creación del clúster..."
 else
     error_exit "No se encuentran credenciales de AWS configuradas. Ejecuta 'aws configure' para configurarlas."
+fi
+
+# Verificar si la clave SSH ya existe en AWS
+echo "Verificando clave SSH en AWS..."
+aws ec2 describe-key-pairs --key-names "$SSH_KEY" --region "$AWS_REGION" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Clave SSH '$SSH_KEY' no encontrada. Generando nueva clave..."
+    
+    # Generar clave SSH si no existe localmente
+    if [ ! -f "$SSH_KEY_PATH" ]; then
+        ssh-keygen -t rsa -b 4096 -f "$SSH_KEY_PATH" -N ""
+        echo "Clave SSH generada en $SSH_KEY_PATH"
+    fi
+
+    # Subir clave a AWS
+    aws ec2 import-key-pair --key-name "$SSH_KEY" --public-key-material fileb://"$SSH_KEY_PATH".pub --region "$AWS_REGION"
+    if [ $? -eq 0 ]; then
+        echo "Clave SSH '$SSH_KEY' importada a AWS correctamente."
+    else
+        error_exit "Error al importar la clave SSH en AWS."
+    fi
+else
+    echo "Clave SSH '$SSH_KEY' ya existe en AWS."
 fi
 
 # Crear el clúster en EKS
