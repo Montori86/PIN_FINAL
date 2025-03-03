@@ -4,7 +4,7 @@
 echo "Installing unzip"
 sudo apt install -y unzip
 
-################ Esta seccion no es necesaria, debido a que ya está instalado aws y no se va a usar kubectl en el host ################
+################ Esta seccion no es necesaria, debido a que ya está instalado aws en el host ################
 
 # # Instalar AWS CLI
 # echo "Installing AWS CLI"
@@ -14,15 +14,16 @@ sudo apt install -y unzip
 # aws --version
 # echo "AWS CLI installed successfully"
 
-# # Instalación de kubectl
-# echo "Installing kubectl"
-# curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.26.2/2023-03-17/bin/linux/amd64/kubectl
-# chmod +x ./kubectl
-# sudo mv ./kubectl /usr/local/bin/kubectl
-# kubectl version --client
-# echo "kubectl installed successfully"
-
 ################# 
+
+# Instalación de kubectl
+echo "Installing kubectl"
+curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.26.2/2023-03-17/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+kubectl version --client
+echo "kubectl installed successfully"
+
 
 # Instalación de eksctl
 echo "Installing eksctl"
