@@ -56,6 +56,13 @@ else
     echo "Clave SSH '$SSH_KEY' ya existe en AWS."
 fi
 
+# Si el parámetro --delete está presente, eliminar el clúster y salir
+if [[ "$1" == "--delete" ]]; then
+    echo "Eliminando el clúster de EKS '$CLUSTER_NAME'..."
+    eksctl delete cluster --name "$CLUSTER_NAME"
+    exit 0
+fi
+
 # Crear el clúster en EKS
 echo "Creando el clúster de EKS '$CLUSTER_NAME' en la región $AWS_REGION..."
 eksctl create cluster \
