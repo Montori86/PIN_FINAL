@@ -61,28 +61,24 @@ echo "Installing Helm"
 curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm version
 
-################ Esta seccion no es necesaria, debido a que está instalado terraform en el host ################
+# Instalación de Terraform
+echo "Installing Terraform"
 
-# # Instalación de Terraform
-# echo "Installing Terraform"
+# Descargar e instalar Terraform desde HashiCorp
+echo "Descargando Terraform..."
+curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o terraform_1.5.0_linux_amd64.zip
 
-# # Descargar e instalar Terraform desde HashiCorp
-# echo "Descargando Terraform..."
-# curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o terraform_1.5.0_linux_amd64.zip
+# Descomprimir el archivo descargado
+echo "Descomprimiendo Terraform..."
+unzip terraform_1.5.0_linux_amd64.zip
 
-# # Descomprimir el archivo descargado
-# echo "Descomprimiendo Terraform..."
-# unzip terraform_1.5.0_linux_amd64.zip
+# Mover el binario de Terraform a una ubicación global
+echo "Moviendo Terraform a /usr/local/bin..."
+sudo mv terraform /usr/local/bin/
 
-# # Mover el binario de Terraform a una ubicación global
-# echo "Moviendo Terraform a /usr/local/bin..."
-# sudo mv terraform /usr/local/bin/
+# Verificar que Terraform está instalado correctamente
+terraform --version
 
-# # Verificar que Terraform está instalado correctamente
-# terraform --version
-
-# echo "Instalación de Terraform completada"
-
-#################
+echo "Instalación de Terraform completada"
 
 echo "Instalación completada"
