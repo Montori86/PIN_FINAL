@@ -12,7 +12,6 @@ helm repo update
 kubectl create namespace prometheus
 
 # Desplegar prometheus en EKS
-
 helm install prometheus prometheus-community/prometheus \
 --namespace prometheus \
 --set alertmanager.persistentVolume.storageClass="gp3" \
