@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # Detiene el script si cualquier comando falla
 
 # Configuración de Variables
 CLUSTER_NAME="eks-grupo-2"
