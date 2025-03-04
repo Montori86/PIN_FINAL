@@ -5,23 +5,36 @@ set -e
 
 # Definir variables
 SCRIPT_DIR=$(dirname "$0")
-GRAFANA_VALUES="$SCRIPT_DIR/grafana.yaml"
+GRAFANA_VALUES="$SCRIPT_DIR/grafana.yml"
 ADMIN_PASSWORD="grupo-02"
 NODEGROUP_NAME="ng-grupo-2-grafana"
 NAMESPACE="grafana"
+
+# Verificar si el archivo de configuración grafana.yml existe
+if [ ! -f "$GRAFANA_VALUES" ]; then
+  echo "Error: El archivo grafana.yml no existe en la ruta $GRAFANA_VALUES"
+  exit 1
+fi
 
 # Verificar si el script fue llamado con --delete
 if [[ "$1" == "--delete" ]]; then
   echo "Eliminando todos los recursos de Grafana..."
   
   # Eliminar cualquier instalación previa de Grafana
-  helm uninstall grafana -n $NAMESPACE --delete && kubectl delete namespace $NAMESPACE
+  helm uninstall grafana -n $NAMESPACE --delete
+  
+  # Eliminar el namespace
+  kubectl delete namespace $NAMESPACE
 
   exit 0
 fi
 
-# Crear el namespace para Grafana
-kubectl create namespace $NAMESPACE
+# Comprobar si el namespace grafana ya existe, si no, crearlo
+if ! kubectl get namespace $NAMESPACE &>/dev/null; then
+  kubectl create namespace $NAMESPACE
+else
+  echo "El namespace $NAMESPACE ya existe."
+fi
 
 # Instalar Grafana usando Helm y el archivo de configuración local
 helm install grafana grafana/grafana \
@@ -34,3 +47,4 @@ helm install grafana grafana/grafana \
 
 # NOTE: el cambio de gp2 a gp3-immediate se hace para que la StorageClass este configurada para provisionar volúmenes de tipo "gp3" en AWS con la 
 # opción "Immediate", lo que significa que el volumen se provisiona de inmediato sin esperar a que se consuma, lo que mejora el tiempo de provisión.
+
