@@ -2,6 +2,7 @@
 
 # Configuración de Variables
 CLUSTER_NAME="eks-grupo-2"
+NODEGROUP_NAME="ng-grupo-2"
 AWS_REGION="us-east-1"
 NODE_TYPE="t3.small"
 NODE_COUNT=3
@@ -70,12 +71,20 @@ eksctl create cluster \
   --region "$AWS_REGION" \
   --nodes "$NODE_COUNT" \
   --node-type "$NODE_TYPE" \
+  --nodegroup-name "$NODEGROUP_NAME" \
   --with-oidc \
   --ssh-access \
   --ssh-public-key "$SSH_KEY" \
   --managed \
   --full-ecr-access \
-  --zones "$ZONES"
+  --zones "$ZONES" \
+  --node-iam-policy-arns arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicy 
+
+# NOTE: --node-iam-policy-arns arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicy es una política necesaria porque sin ella, 
+# los nodos de EKS no pueden aprovisionar volúmenes persistentes en Amazon EBS. Antes, al desplegar Prometheus, 
+# los volúmenes quedaban en estado "Pending" con el error "FailedScheduling: VolumeBinding: context deadline exceeded".  
+# Este error ocurría porque los nodos no tenían permisos para manejar EBS, lo que impedía que Kubernetes creara los volúmenes 
+# necesarios para los PVCs. Con esta política, los nodos ahora pueden crear, adjuntar y gestionar volúmenes en EBS sin problemas.
 
 # Verificar si el clúster fue creado exitosamente
 if [ $? -eq 0 ]; then
