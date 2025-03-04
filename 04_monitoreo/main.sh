@@ -20,7 +20,26 @@ run_script() {
     bash "$script_name" || error_exit "Falló la ejecución de $script_name"
 }
 
-# Ejecutar los scripts en orden
+# Función para eliminar todo
+clean_up() {
+    echo "🗑 Eliminando Prometheus y Grafana..."
+
+    helm uninstall prometheus -n prometheus || echo "⚠️ Prometheus ya estaba eliminado."
+    helm uninstall grafana -n grafana || echo "⚠️ Grafana ya estaba eliminado."
+
+    kubectl delete namespace prometheus --ignore-not-found=true
+    kubectl delete namespace grafana --ignore-not-found=true
+
+    echo "✅ Todo eliminado correctamente."
+    exit 0
+}
+
+# Verificar si se pasó el argumento --delete
+if [[ "$1" == "--delete" ]]; then
+    clean_up
+fi
+
+# Si no se pasó --delete, ejecutar los despliegues
 run_script "$PROMETHEUS_SCRIPT"
 run_script "$GRAFANA_SCRIPT"
 
