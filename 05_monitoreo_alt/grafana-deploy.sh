@@ -21,7 +21,7 @@ if [[ "$1" == "--delete" ]]; then
   echo "Eliminando todos los recursos de Grafana..."
   
   # Eliminar cualquier instalación previa de Grafana
-  helm uninstall grafana -n $NAMESPACE --delete
+  helm uninstall grafana -n $NAMESPACE
   
   # Eliminar el namespace
   kubectl delete namespace $NAMESPACE
