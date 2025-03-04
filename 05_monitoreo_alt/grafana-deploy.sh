@@ -5,14 +5,14 @@ set -e
 
 # Definir variables
 SCRIPT_DIR=$(dirname "$0")
-GRAFANA_VALUES="$SCRIPT_DIR/grafana.yml"
+GRAFANA_VALUES="$SCRIPT_DIR/grafana.yaml"
 ADMIN_PASSWORD="grupo-02"
 NODEGROUP_NAME="ng-grupo-2-grafana"
 NAMESPACE="grafana"
 
 # Verificar si el archivo de configuración grafana.yml existe
 if [ ! -f "$GRAFANA_VALUES" ]; then
-  echo "Error: El archivo grafana.yml no existe en la ruta $GRAFANA_VALUES"
+  echo "Error: El archivo grafana.yaml no existe en la ruta $GRAFANA_VALUES"
   exit 1
 fi
 
