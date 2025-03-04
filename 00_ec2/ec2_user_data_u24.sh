@@ -41,29 +41,25 @@ export PATH=$PATH:/usr/local/bin
 echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bashrc
 eksctl version
 
-################ Esta seccion no es necesaria, debido a que no se va a usar docker ni Helm en el host ################
+# Instalación de Docker
+echo "Installing Docker"
+sudo apt install -y docker
+sudo systemctl enable docker.service
+sudo systemctl start docker.service
 
-# # Instalación de Docker
-# echo "Installing Docker"
-# sudo apt install -y docker
-# sudo systemctl enable docker.service
-# sudo systemctl start docker.service
+# Añadir el usuario al grupo docker para que pueda usar Docker sin sudo
+sudo usermod -aG docker ec2-user
+newgrp docker
 
-# # Añadir el usuario al grupo docker para que pueda usar Docker sin sudo
-# sudo usermod -aG docker ec2-user
-# newgrp docker
+# Descargar e instalar Docker Compose
+echo "Installing Docker Compose"
+wget https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
+sudo mv docker-compose-$(uname -s)-$(uname -m) /usr/local/bin/docker-compose
+sudo chmod -v +x /usr/local/bin/docker-compose
 
-# # Descargar e instalar Docker Compose
-# echo "Installing Docker Compose"
-# wget https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
-# sudo mv docker-compose-$(uname -s)-$(uname -m) /usr/local/bin/docker-compose
-# sudo chmod -v +x /usr/local/bin/docker-compose
-
-# echo "Installing Helm"
-# curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-# helm version
-
-#################
+echo "Installing Helm"
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+helm version
 
 ################ Esta seccion no es necesaria, debido a que está instalado terraform en el host ################
 
