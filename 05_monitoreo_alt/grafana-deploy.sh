@@ -2,7 +2,7 @@
 
 # Definir variables
 SCRIPT_DIR=$(dirname "$0")
-GRAFANA_VALUES="$SCRIPT_DIR/grafana.yml"
+GRAFANA_VALUES="$SCRIPT_DIR/grafana.yaml"
 ADMIN_PASSWORD="grupo-02"
 NODEGROUP_NAME="ng-grupo-2-grafana"
 
