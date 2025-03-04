@@ -93,9 +93,10 @@ if [ -z "$NODE_ROLE" ] || [ "$NODE_ROLE" == "None" ]; then
 fi
 echo "El rol de IAM del grupo de nodos es: $NODE_ROLE"
 
-echo "Asignando la política de AmazonEBSCSIDriverPolicy al rol de IAM..."
+# NOTE2: la politica AmazonEBSCSIDriverPolicy no se puede asignar, por ahora se la reemplaza por AmazonEC2FullAccess
+echo "Asignando la política de AmazonEC2FullAccess al rol de IAM ..."
 aws iam attach-role-policy --role-name "$(basename $NODE_ROLE)" \
-  --policy-arn arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicy
-echo "Política AmazonEBSCSIDriverPolicy asignada correctamente."
+  --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+echo "Política AmazonEC2FullAccess asignada correctamente."
 
 echo "El clúster '$CLUSTER_NAME' fue creado exitosamente."
