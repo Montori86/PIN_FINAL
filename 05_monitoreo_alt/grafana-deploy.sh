@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Detener el script si ocurre un error
+set -e
+
 # Definir variables
 SCRIPT_DIR=$(dirname "$0")
 GRAFANA_VALUES="$SCRIPT_DIR/grafana.yaml"
@@ -13,6 +16,8 @@ if [[ "$1" == "--delete" ]]; then
   
   # Eliminar cualquier instalación previa de Grafana
   helm uninstall grafana -n $NAMESPACE --delete && kubectl delete namespace $NAMESPACE
+
+  exit 0
 fi
 
 # Crear el namespace para Grafana
@@ -29,5 +34,3 @@ helm install grafana grafana/grafana \
 
 # NOTE: el cambio de gp2 a gp3-immediate se hace para que la StorageClass este configurada para provisionar volúmenes de tipo "gp3" en AWS con la 
 # opción "Immediate", lo que significa que el volumen se provisiona de inmediato sin esperar a que se consuma, lo que mejora el tiempo de provisión.
-
-
