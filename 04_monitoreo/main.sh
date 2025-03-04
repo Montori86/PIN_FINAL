@@ -20,13 +20,29 @@ run_script() {
     bash "$script_name" || error_exit "Falló la ejecución de $script_name"
 }
 
-# Función para eliminar todo
+# Función para eliminar todo completamente
 clean_up() {
     echo "🗑 Eliminando Prometheus y Grafana..."
 
+    # Eliminar los releases de Helm
     helm uninstall prometheus -n prometheus || echo "⚠️ Prometheus ya estaba eliminado."
     helm uninstall grafana -n grafana || echo "⚠️ Grafana ya estaba eliminado."
 
+    # Eliminar todos los recursos en los namespaces
+    kubectl delete all --all -n prometheus --ignore-not-found=true
+    kubectl delete all --all -n grafana --ignore-not-found=true
+
+    # Eliminar volúmenes persistentes (PVCs) si quedaron
+    kubectl delete pvc --all -n prometheus --ignore-not-found=true
+    kubectl delete pvc --all -n grafana --ignore-not-found=true
+
+    # Eliminar ConfigMaps y Secrets en caso de que hayan quedado
+    kubectl delete configmap --all -n prometheus --ignore-not-found=true
+    kubectl delete configmap --all -n grafana --ignore-not-found=true
+    kubectl delete secret --all -n prometheus --ignore-not-found=true
+    kubectl delete secret --all -n grafana --ignore-not-found=true
+
+    # Finalmente, eliminar los namespaces
     kubectl delete namespace prometheus --ignore-not-found=true
     kubectl delete namespace grafana --ignore-not-found=true
 
