@@ -9,5 +9,9 @@ if [[ -z "$ELB" ]]; then
     exit 1
 fi
 
-# Mostrar la URL de acceso a Grafana
+# Obtener la contraseña del usuario admin
+ADMIN_PASSWORD=$(kubectl get secret --namespace grafana grafana -o jsonpath="{.data.admin-password}" | base64 --decode)
+
+# Mostrar la URL de acceso y la contraseña de Grafana
 echo "🔗 URL de Grafana: http://$ELB"
+echo "🔑 Contraseña de admin: $ADMIN_PASSWORD"
