@@ -13,11 +13,17 @@ function error_exit {
     exit 1
 }
 
-# Función para ejecutar un script y verificar si falla
-run_script() {
-    local script_name=$1
-    echo "🔹 Ejecutando $script_name..."
-    bash "$script_name" || error_exit "Falló la ejecución de $script_name"
+# Función para eliminar un release de Helm solo si está instalado
+delete_helm_release() {
+    local release_name=$1
+    local namespace=$2
+
+    if helm list -n "$namespace" | grep -q "$release_name"; then
+        helm uninstall "$release_name" -n "$namespace"
+        echo "✅ $release_name eliminado."
+    else
+        echo "⚠️ $release_name ya estaba eliminado."
+    fi
 }
 
 # Función para eliminar todo completamente
@@ -25,10 +31,10 @@ clean_up() {
     echo "🗑 Eliminando Prometheus y Grafana..."
 
     # Eliminar los releases de Helm
-    helm uninstall prometheus -n prometheus || echo "⚠️ Prometheus ya estaba eliminado."
-    helm uninstall grafana -n grafana || echo "⚠️ Grafana ya estaba eliminado."
+    delete_helm_release prometheus prometheus
+    delete_helm_release grafana grafana
 
-    # Eliminar todos los recursos en los namespaces
+    # Eliminar todos los recursos en los namespaces (pods, servicios, deployments, etc.)
     kubectl delete all --all -n prometheus --ignore-not-found=true
     kubectl delete all --all -n grafana --ignore-not-found=true
 
@@ -42,11 +48,15 @@ clean_up() {
     kubectl delete secret --all -n prometheus --ignore-not-found=true
     kubectl delete secret --all -n grafana --ignore-not-found=true
 
+    # Eliminar servicios tipo LoadBalancer (para no dejar instancias en AWS)
+    kubectl delete svc --all -n prometheus --ignore-not-found=true
+    kubectl delete svc --all -n grafana --ignore-not-found=true
+
     # Finalmente, eliminar los namespaces
     kubectl delete namespace prometheus --ignore-not-found=true
     kubectl delete namespace grafana --ignore-not-found=true
 
-    echo "✅ Todo eliminado correctamente."
+    echo "✅ Todo eliminado correctamente. No quedan recursos que generen costos en AWS."
     exit 0
 }
 
@@ -56,6 +66,12 @@ if [[ "$1" == "--delete" ]]; then
 fi
 
 # Si no se pasó --delete, ejecutar los despliegues
+run_script() {
+    local script_name=$1
+    echo "🔹 Ejecutando $script_name..."
+    bash "$script_name" || error_exit "Falló la ejecución de $script_name"
+}
+
 run_script "$PROMETHEUS_SCRIPT"
 run_script "$GRAFANA_SCRIPT"
 
