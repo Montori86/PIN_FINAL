@@ -78,18 +78,24 @@ eksctl create cluster \
   --ssh-public-key "$SSH_KEY" \
   --managed \
   --full-ecr-access \
-  --zones "$ZONES" \
-  --node-iam-policy-arns arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicy 
+  --zones "$ZONES" 
 
-# NOTE: --node-iam-policy-arns arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicy es una política necesaria porque sin ella, 
+# NOTE: AmazonEBSCSIDriverPolicy es una política necesaria porque sin ella, 
 # los nodos de EKS no pueden aprovisionar volúmenes persistentes en Amazon EBS. Antes, al desplegar Prometheus, 
 # los volúmenes quedaban en estado "Pending" con el error "FailedScheduling: VolumeBinding: context deadline exceeded".  
 # Este error ocurría porque los nodos no tenían permisos para manejar EBS, lo que impedía que Kubernetes creara los volúmenes 
 # necesarios para los PVCs. Con esta política, los nodos ahora pueden crear, adjuntar y gestionar volúmenes en EBS sin problemas.
 
-# Verificar si el clúster fue creado exitosamente
-if [ $? -eq 0 ]; then
-    echo "El clúster '$CLUSTER_NAME' fue creado exitosamente."
-else
-    error_exit "La creación del clúster falló."
+echo "Obteniendo el rol de IAM del grupo de nodos..."
+NODE_ROLE=$(aws eks describe-nodegroup --cluster-name "$CLUSTER_NAME" --nodegroup-name "$NODEGROUP_NAME" --query "nodegroup.nodeRole" --output text)
+if [ -z "$NODE_ROLE" ] || [ "$NODE_ROLE" == "None" ]; then
+    error_exit "No se pudo obtener el rol de IAM del grupo de nodos. Verifica si el clúster se creó correctamente."
 fi
+echo "El rol de IAM del grupo de nodos es: $NODE_ROLE"
+
+echo "Asignando la política de AmazonEBSCSIDriverPolicy al rol de IAM..."
+aws iam attach-role-policy --role-name "$(basename $NODE_ROLE)" \
+  --policy-arn arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicy
+echo "Política AmazonEBSCSIDriverPolicy asignada correctamente."
+
+echo "El clúster '$CLUSTER_NAME' fue creado exitosamente."
