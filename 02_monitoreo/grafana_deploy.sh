@@ -39,7 +39,7 @@ fi
 # Instalar Grafana usando Helm y el archivo de configuración local
 helm install grafana grafana/grafana \
     --namespace $NAMESPACE \
-    --set persistence.enabled=false \
+    --set persistence.enabled=true \
     --set adminPassword="$ADMIN_PASSWORD" \
     --values "$GRAFANA_VALUES" \
     --set service.type=LoadBalancer

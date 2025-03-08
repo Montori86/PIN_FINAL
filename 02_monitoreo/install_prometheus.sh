@@ -25,7 +25,7 @@ kubectl create namespace "$NAMESPACE"
 # Instalar Prometheus sin almacenamiento persistente
 helm install prometheus prometheus-community/prometheus \
   --namespace "$NAMESPACE" \
-  --set alertmanager.persistentVolume.enabled=false \
-  --set server.persistentVolume.enabled=false
+  --set alertmanager.persistentVolume.enabled=true \
+  --set server.persistentVolume.enabled=true
 
-echo "✅ Instalación de Prometheus completada sin volúmenes persistentes."
+echo "✅ Instalación de Prometheus completada."
