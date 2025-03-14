@@ -140,4 +140,3 @@ darles los mínimos privilegios, manteniendo políticas ordenadas y límpias.
 
 ## PDF
 [Presentación PIN FINAL - Grupo 02 - DEVOPS 2403.pdf](03_presentacion/Presentación%20PIN%20FINAL%20-%20Grupo%2002%20-%20DEVOPS%202403.pdf)
-
